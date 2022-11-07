@@ -4,14 +4,13 @@ import zio._
 
 object DadJokeApp extends ZIOAppDefault {
 
-  def appLogic: RIO[DadJokeGenerator, ExitCode] = for {
+  def appLogic: UIO[ExitCode] = for {
     _ <- printLine(s"Today's dad joke is:\n").orDie
     _ <- ZIO.sleep(1.second) // wait to build up suspense
-    jokeGenerator <- ZIO.service[DadJokeGenerator]
-    joke <- jokeGenerator.getRandomDadJokeZIO
+    joke = DadJokeGenerator.generateDadJoke
     _ <- joke.print
   } yield ExitCode.success
 
   override def run: Task[ExitCode] =
-    appLogic.provide(DadJokeGenerator.liveLayer)
+    appLogic
 }
